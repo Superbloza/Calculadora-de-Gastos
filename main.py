@@ -1,6 +1,7 @@
 import streamlit as st
 import math
 from pathlib import Path
+import streamlit.components.v1 as components
 
 BASE_DIR = Path(__file__).resolve().parent
 logo_path = BASE_DIR / "martin_prop.jpg"
@@ -82,10 +83,34 @@ def honorarios(rango_inicial, rango_final, step, texto, indice):
 
 st.set_page_config(page_title="Simulador de Gastos", page_icon="🏠")
 centrar(st.image, str(logo_path), width=320)
-st.markdown("Gustavo López")
-st.markdown("Asesor Inmobiliario")
-st.markdown("Contacto: 11-5761-0972")
-st.markdown("glopezinmuebles@gmail.com")
+components.html(
+    """
+    <div style="
+        text-align:center;
+        border:1px solid #E0E0E0;
+        border-radius:12px;
+        padding:18px 18px 14px 18px;
+        max-width:340px;
+        margin: 0 auto;
+        background:#FAFAFA;
+        font-family: Arial, sans-serif;
+    ">
+      <div style="font-size:22px; font-weight:700; color:#333;">Gustavo López</div>
+      <div style="font-size:13px; color:#777; margin-top:4px; margin-bottom:14px;">Asesor Inmobiliario</div>
+
+      <div style="font-size:14px; margin-bottom:8px;">
+        📞 <a style="text-decoration:none; color:#0A3D62;" target="_blank"
+             href="https://wa.me/5491157610972">11-5761-0972</a>
+      </div>
+
+      <div style="font-size:14px;">
+        ✉️ <a style="text-decoration:none; color:#0A3D62;"
+             href="mailto:glopezinmuebles@gmail.com">glopezinmuebles@gmail.com</a>
+      </div>
+    </div>
+    """,
+    height=220,
+)
 st.title("Calculadora de Gastos Inmobiliarios")
 st.markdown("Herramienta profesional para estimar costos de escrituración.")
 
@@ -190,3 +215,6 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
+
+
