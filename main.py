@@ -82,6 +82,38 @@ def honorarios(rango_inicial, rango_final, step, texto, indice):
 
 st.set_page_config(page_title="Simulador de Gastos", page_icon="🏠")
 centrar(st.image, str(logo_path), width=320)
+st.markdown("""
+<div style="
+    text-align: center;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 320px;
+    margin: 0 auto;
+    background-color: #FAFAFA;
+    font-family: Arial, sans-serif;
+">
+
+    <div style="font-size: 22px; font-weight: 700; color: #333;">
+        Gustavo López
+    </div>
+
+    <div style="font-size: 13px; color: #777; margin-bottom: 15px;">
+        Asesor Inmobiliario
+    </div>
+
+    <div style="font-size: 14px; margin-bottom: 6px;">
+        📞 <a href="https://wa.me/5491157610972" target="_blank" style="text-decoration:none; color:#0A3D62;">
+        11-5761-0972</a>
+    </div>
+
+    <div style="font-size: 14px;">
+        ✉️ <a href="mailto:glopezinmuebles@gmail.com" style="text-decoration:none; color:#0A3D62;">
+        glopezinmuebles@gmail.com</a>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
 st.markdown("Gustavo López")
 st.markdown("Asesor Inmobiliario")
 st.markdown("Contacto: 11-5761-0972")
@@ -190,3 +222,4 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
