@@ -31,16 +31,21 @@ if not st.session_state.acepto_terminos:
     - Los montos definitivos dependerán de la escribanía interviniente.
     - La inmobiliaria no se responsabiliza por diferencias con el valor final de la escrituración.
     """)
-    st.markdown("""
-    <div style="
-        border:2px solid #B03A2E;
-        border-radius:10px;
-        padding:15px;
-        background-color:#FFF5F5;
-        margin-top:20px;
-    ">
-    <strong>st.checkbox("He leído y acepto los términos y condiciones")</strong>
-    </div>
+        st.markdown("""
+    <style>
+    
+    /* Aumenta tamaño */
+    input[type="checkbox"] {
+        transform: scale(1.3);
+        accent-color: #B03A2E;   /* color del check */
+    }
+    
+    /* Mejora el label */
+    div[data-testid="stCheckbox"] label {
+        font-weight: 600;
+    }
+    
+    </style>
     """, unsafe_allow_html=True)
     if st.checkbox("Al ingresar, declaro que he leído y acepto los términos y condiciones"):
         if st.button("Ingresar a la calculadora"):
@@ -225,6 +230,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
