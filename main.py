@@ -2,11 +2,22 @@ import streamlit as st
 import math
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent
+logo_path = BASE_DIR / "martin_prop.jpg"
+
+# --- OTRAS FUNCIONES AUXILIARES ---
+
+def centrar(func, *args, ancho=2, **kwargs):
+    col1, col2, col3 = st.columns([1, ancho, 1])
+    with col2:
+        func(*args, **kwargs)
+
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
     st.session_state.acepto_terminos = False
 
 if not st.session_state.acepto_terminos:
+    centrar(st.image, str(logo_path), width=150)
     st.title("Términos y Condiciones")
 
     st.markdown("""
@@ -66,19 +77,10 @@ def honorarios(rango_inicial, rango_final, step, texto, indice):
         index=indice  # 2.0% como default
         )
     return honorarios_perc
-
-# --- OTRAS FUNCIONES AUXILIARES ---
-
-def centrar(func, *args, ancho=2, **kwargs):
-    col1, col2, col3 = st.columns([1, ancho, 1])
-    with col2:
-        func(*args, **kwargs)
     
 # --- INTERFAZ WEB ---
 
 st.set_page_config(page_title="Simulador de Gastos", page_icon="🏠")
-BASE_DIR = Path(__file__).resolve().parent
-logo_path = BASE_DIR / "martin_prop.jpg"
 centrar(st.image, str(logo_path), width=320)
 st.markdown("Gustavo López")
 st.markdown("Asesor Inmobiliario")
@@ -186,4 +188,5 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                         c2.metric("Honorarios Escribanía", f"${honorarios_escribania:,.2f} USD")
                 gastos_totales_a_abonar_en_dolares = honorarios_inmobiliaria + honorarios_escribania + gastos_pesos_convertidos_blue
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
+
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
