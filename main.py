@@ -114,10 +114,6 @@ st.markdown("""
 
 </div>
 """, unsafe_allow_html=True)
-st.markdown("Gustavo López")
-st.markdown("Asesor Inmobiliario")
-st.markdown("Contacto: 11-5761-0972")
-st.markdown("glopezinmuebles@gmail.com")
 st.title("Calculadora de Gastos Inmobiliarios")
 st.markdown("Herramienta profesional para estimar costos de escrituración.")
 
@@ -222,4 +218,5 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
