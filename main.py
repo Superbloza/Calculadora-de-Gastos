@@ -17,19 +17,36 @@ def input_con_miles(label):
 
     html_code = f"""
     <label style="font-family:sans-serif">{label}</label>
-    <input id="numero" type="text" style="width:100%;padding:8px;font-size:16px"/>
-
+    
+    <input id="numero" type="text"
+    style="
+    width:100%;
+    padding:10px 12px;
+    font-size:16px;
+    border:1px solid #d1d5db;
+    border-radius:6px;
+    box-sizing:border-box;
+    outline:none;
+    ">
+    
+    <style>
+    #numero:focus {{
+        border-color:#ff4b4b;
+        box-shadow:0 0 0 1px #ff4b4b;
+    }}
+    </style>
+    
     <script>
     const input = document.getElementById("numero");
-
+    
     input.addEventListener("input", function(e) {{
         let valor = input.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
-
+    
         if(valor === "") {{
             input.value = "";
             return;
         }}
-
+    
         input.value = Number(valor).toLocaleString("es-AR");
     }});
     </script>
@@ -254,6 +271,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
