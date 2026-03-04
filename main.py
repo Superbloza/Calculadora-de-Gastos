@@ -13,24 +13,63 @@ def centrar(func, *args, ancho=2, **kwargs):
     with col2:
         func(*args, **kwargs)
 
-def number_input_formateado(label: str, value: float = 0.0, step: float = 1.0, min_value: float = 0.0, **kwargs):
-    # Formatea el valor inicial con separador de miles (.)
-    valor_formateado = f"{int(value):,}".replace(",", ".")
-    
-    # Input como texto para permitir formato
-    entrada = st.text_input(
-        label=label,
-        value=valor_formateado,
-        key=f"input_{label}",  # evita warnings de key
-        **kwargs
-    )
-    
-    # Limpia y convierte de vuelta a número
-    try:
-        limpio = entrada.replace(".", "").replace(",", "")
-        return float(limpio) if "." in str(value) or step != 1.0 else int(limpio)
-    except:
-        return value  # fallback si el usuario borra todo
+import re
+import streamlit as st
+
+def number_input_formateado(label: str, value=None, placeholder: str = "Ingrese el valor", allow_decimal: bool = False, key: str | None = None):
+    """
+    Input numérico 'tipo Argentina' (miles con punto).
+    Acepta: 230000, 230.000, 230,000
+    Devuelve: int (o float si allow_decimal=True).
+    Si el usuario deja vacío: devuelve None.
+    """
+
+    # Valor inicial formateado (si viene uno)
+    if value is None:
+        default_str = ""
+    else:
+        if allow_decimal:
+            # si quisieras decimales (no lo recomiendo para precio de propiedad)
+            default_str = f"{float(value):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        else:
+            default_str = f"{int(value):,}".replace(",", ".")
+
+    entrada = st.text_input(label, value=default_str, placeholder=placeholder, key=key or f"input_{label}")
+
+    if entrada.strip() == "":
+        return None
+
+    # Permitir solo dígitos, puntos y comas
+    if not re.fullmatch(r"[0-9\.,]+", entrada.strip()):
+        st.warning("Ingrese solo números (puede usar puntos para miles).")
+        return None
+
+    # Normalización:
+    # - sacamos puntos (miles)
+    # - comas las tratamos como separador decimal SOLO si allow_decimal=True
+    s = entrada.replace(".", "")
+
+    if allow_decimal:
+        # Para decimales estilo AR: "123,45"
+        # Si ponen comas como miles "230,000", eso quedaría mal como decimal.
+        # Regla simple: si hay más de una coma, es inválido.
+        if s.count(",") > 1:
+            st.warning("Formato inválido. Use solo una coma para decimales.")
+            return None
+        s = s.replace(",", ".")
+        try:
+            return float(s)
+        except:
+            st.warning("Número inválido.")
+            return None
+    else:
+        # Si NO permitimos decimales: eliminamos también comas (por si escriben 230,000)
+        s = s.replace(",", "")
+        try:
+            return int(s)
+        except:
+            st.warning("Número inválido.")
+            return None
 
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
@@ -249,6 +288,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
