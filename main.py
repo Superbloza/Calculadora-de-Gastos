@@ -13,6 +13,25 @@ def centrar(func, *args, ancho=2, **kwargs):
     with col2:
         func(*args, **kwargs)
 
+def number_input_formateado(label: str, value: float = 0.0, step: float = 1.0, min_value: float = 0.0, **kwargs):
+    # Formatea el valor inicial con separador de miles (.)
+    valor_formateado = f"{int(value):,}".replace(",", ".")
+    
+    # Input como texto para permitir formato
+    entrada = st.text_input(
+        label=label,
+        value=valor_formateado,
+        key=f"input_{label}",  # evita warnings de key
+        **kwargs
+    )
+    
+    # Limpia y convierte de vuelta a número
+    try:
+        limpio = entrada.replace(".", "").replace(",", "")
+        return float(limpio) if "." in str(value) or step != 1.0 else int(limpio)
+    except:
+        return value  # fallback si el usuario borra todo
+
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
     st.session_state.acepto_terminos = False
@@ -139,10 +158,10 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = st.number_input("Valor Propiedad (USD):", min_value=0.0, value=None, step=5000.0, placeholder="Ingrese el valor en dólares.", help="Ingrese únicamente números o una coma para decimales.")
+    valor_usd = number_input_formateado("Precio publicado (USD)", value=None, step=10000)
     if valor_usd != None:
         st.caption(f"Valor ingresado: USD {valor_usd:,.0f}".replace(",", "."))
-    valor_pesos = st.number_input("Valor Propiedad (ARS):", min_value=0.0, value=None, step=500000.0, placeholder="Ingrese el valor en pesos.",help="Ingrese únicamente números o una coma para decimales.")
+    valor_pesos = number_input_formateado("Precio publicado (ARS)", value=None, step=100000)
     if valor_pesos != None:
         st.caption(f"Valor ingresado: ARS {valor_pesos:,.0f}".replace(",", "."))
 
@@ -172,7 +191,7 @@ if localidad == "Provincia" and rol == "Vendedor":
     
 valuacion_fiscal = 0.0
 if tiene_sup_desc == "Sí":
-    valuacion_fiscal = st.number_input("Valuación Fiscal: ", min_value=0.0, value=None, step=100000.0, placeholder="Ingrese la valuación fiscal.", help="Ingrese únicamente números o una coma para decimales.")
+    valuacion_fiscal = valor_pesos = number_input_formateado("Valuación Fiscal (ARS)", value=None, step=100000)
     if valuacion_fiscal != None:
         st.caption(f"Valor ingresado: ARS {valuacion_fiscal:,.0f}".replace(",", "."))
     
@@ -230,6 +249,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
