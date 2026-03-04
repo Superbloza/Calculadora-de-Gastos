@@ -2,6 +2,7 @@ import streamlit as st
 import math
 from pathlib import Path
 import streamlit.components.v1 as components
+import re
 
 BASE_DIR = Path(__file__).resolve().parent
 logo_path = BASE_DIR / "martin_prop.jpg"
@@ -17,31 +18,31 @@ def input_con_miles(label, key):
 
     valor = st.text_input(label, key=key)
 
-    html_code = f"""
+    # Script que formatea solo ese input
+    components.html(f"""
     <script>
-    const input = window.parent.document.querySelectorAll('input[type="text"]');
-
-    input.forEach((el) => {{
-        el.addEventListener("input", function(e) {{
-            let valor = el.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
+    const input = window.parent.document.querySelector('input[data-testid="stTextInput"][id*="{key}"]');
+    if (input) {{
+        input.addEventListener("input", function() {{
+            let valor = input.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
 
             if(valor === "") {{
-                el.value = "";
+                input.value = "";
                 return;
             }}
 
-            el.value = Number(valor).toLocaleString("es-AR");
+            input.value = Number(valor).toLocaleString("es-AR");
         }});
-    }});
+    }}
     </script>
-    """
+    """, height=0)
 
-    components.html(html_code, height=0)
-
-    if valor == "":
+    if valor is None or valor == "":
         return None
 
-    return int(valor.replace(".", "").replace(",", ""))
+    limpio = re.sub(r"[^0-9]", "", valor)
+
+    return int(limpio) if limpio else None
 
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
@@ -260,6 +261,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
