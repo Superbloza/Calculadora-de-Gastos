@@ -35,7 +35,7 @@ def input_con_miles(label):
     </script>
     """
 
-    components.html(html_code, height=50)
+    components.html(html_code, height=80)
 
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
@@ -254,6 +254,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
