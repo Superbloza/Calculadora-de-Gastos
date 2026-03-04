@@ -16,33 +16,30 @@ def centrar(func, *args, ancho=2, **kwargs):
 
 def input_con_miles(label, key):
 
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
     valor = st.text_input(label, key=key)
 
-    # Script que formatea solo ese input
-    components.html(f"""
-    <script>
-    const input = window.parent.document.querySelector('input[data-testid="stTextInput"][id*="{key}"]');
-    if (input) {{
-        input.addEventListener("input", function() {{
-            let valor = input.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
-
-            if(valor === "") {{
-                input.value = "";
-                return;
-            }}
-
-            input.value = Number(valor).toLocaleString("es-AR");
-        }});
-    }}
-    </script>
-    """, height=0)
-
-    if valor is None or valor == "":
+    if valor == "":
         return None
 
     limpio = re.sub(r"[^0-9]", "", valor)
 
-    return int(limpio) if limpio else None
+    if limpio == "":
+        return None
+
+    numero = int(limpio)
+
+    # Formatear con miles
+    formateado = f"{numero:,}".replace(",", ".")
+
+    # Actualizar el input
+    if valor != formateado:
+        st.session_state[key] = formateado
+        st.rerun()
+
+    return numero
 
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
@@ -261,6 +258,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
