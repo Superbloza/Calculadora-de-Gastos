@@ -98,12 +98,12 @@ if not st.session_state.acepto_terminos:
 # --- LÓGICA DE CÁLCULO ---
 
 def calcular_impuesto_sellos(localidad, valor_prop, tiene_otra_prop):
-    if localidad == "Provincia":
+    if localidad is "Provincia":
         porc = 1.0
         return (porc * valor_prop) / 100
     else:  # CABA
         porc = 1.75
-        if tiene_otra_prop == "No":  # Es vivienda única
+        if tiene_otra_prop is "No":  # Es vivienda única
             tope_exento = 205332000 
             if valor_prop > tope_exento:
                 return (porc * (valor_prop - tope_exento)) / 100
@@ -114,7 +114,7 @@ def calcular_impuesto_sellos(localidad, valor_prop, tiene_otra_prop):
 def calcular_agrimensor(valuacion_fiscal):
     valor_base_agrimensor = 440000
 # Base: Hasta 2.000.000 vale $440.000
-    if valuacion_fiscal != None:
+    if valuacion_fiscal is not None:
         if valuacion_fiscal <= 2000000:
             return valor_base_agrimensor
         else:
@@ -181,17 +181,13 @@ col1, col2 = st.columns(2)
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
     valor_usd = input_con_miles("Ingrese el valor de la propiedad (USD)")
-    if valor_usd != None:
-        st.caption(f"Valor ingresado: USD {valor_usd:,.0f}".replace(",", "."))
     valor_pesos = input_con_miles("Ingrese el valor de la propiedad (ARS)")
-    if valor_pesos != None:
-        st.caption(f"Valor ingresado: ARS {valor_pesos:,.0f}".replace(",", "."))
 
 with col2:
     rol = st.segmented_control("Tu rol:", ["Comprador", "Vendedor"])
     hon_inmo = 0.0
     hon_escr = 0.0
-    if rol == "Comprador":
+    if rol is "Comprador":
         hon_inmo = honorarios(0, 9, 0.5, "% Honorarios Inmobiliaria:", 8)  # Rango 0-4% en pasos de 0.5
         hon_escr = honorarios(0, 5, 0.5, "% Honorarios Escribanía:", 4)  # Rango 0-2% en pasos de 0.5
     else:
@@ -199,34 +195,34 @@ with col2:
 
 # Lógica condicional para vivienda única
 tiene_otra = "Sí"
-if localidad == "CABA":
-    if rol == "Comprador":
+if localidad is "CABA":
+    if rol is "Comprador":
         pregunta = "¿Posee otra propiedad en CABA?"
     else:
         pregunta = "¿El comprador posee otra propiedad en CABA?"
     tiene_otra = st.radio(pregunta, ["Sí", "No"], help="Seleccione 'No' si es vivienda única para aplicar exenciones.")
         
 tiene_sup_desc = "No"
-if localidad == "Provincia" and rol == "Vendedor":
+if localidad is "Provincia" and rol is "Vendedor":
     pregunta2 = "¿La propiedad tiene superficie descubierta?"
     tiene_sup_desc = st.radio(pregunta2, ["Sí", "No"], help="En caso de tener superficie descubierta, agrega el valor del agrimensor.")
     
 valuacion_fiscal = 0.0
-if tiene_sup_desc == "Sí":
+if tiene_sup_desc is "Sí":
     valuacion_fiscal = input_con_miles("Ingrese la valuación fiscal (ARS)")
-    if valuacion_fiscal != None:
-        st.caption(f"Valor ingresado: ARS {valuacion_fiscal:,.0f}".replace(",", "."))
     
 # Condición: Vendedor + Provincia + Superficie descubierta
 costo_agrimensor = 0.0
-if rol == "Vendedor" and localidad == "Provincia" and tiene_sup_desc == "Sí" and valuacion_fiscal != None:
+if rol is "Vendedor" and localidad is "Provincia" and tiene_sup_desc is "Sí" and valuacion_fiscal is not None:
     costo_agrimensor = calcular_agrimensor(valuacion_fiscal)
     st.warning(f"Se debe realizar estado parcelario. Costo Agrimensor Estimado: ${costo_agrimensor:,.0f}")
+
+requiere_valuacion = (localidad == "Provincia" and rol == "Vendedor" and tiene_sup_desc == "Sí")
 
 if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
     # Botón de cálculo
         if st.button("Calcular Gastos Ahora"):
-            if valor_usd == None or valor_pesos == None or (valuacion_fiscal == None if tiene_sup_desc == "Sí"):
+            if valor_usd is None or valor_pesos is None or (requiere_valuacion and valuacion_fiscal == None):
                 st.info("Por favor, complete los campos para calcular los gastos estimados.")
                 st.stop()
             else:
@@ -235,7 +231,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 aporte = (0.2 * valor_pesos) / 100
                 otros = (0.8 * valor_pesos) / 100
                 gastos_pesos = sellos + aporte + otros
-                if localidad == "Provincia" and rol == "Vendedor" and tiene_sup_desc == "Sí":
+                if localidad is "Provincia" and rol is "Vendedor" and tiene_sup_desc is "Sí":
                     gastos_pesos += costo_agrimensor
                 
                 honorarios_inmobiliaria = valor_usd * (hon_inmo / 100)
@@ -265,12 +261,13 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                     gastos_pesos_convertidos_blue = gastos_pesos / dolar_blue
                     c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:,.2f} USD")
                 with c2:
-                    if rol == "Comprador":
+                    if rol is "Comprador":
                         c2.metric("Honorarios Escribanía", f"${honorarios_escribania:,.2f} USD")
                 gastos_totales_a_abonar_en_dolares = honorarios_inmobiliaria + honorarios_escribania + gastos_pesos_convertidos_blue
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
