@@ -13,46 +13,35 @@ def centrar(func, *args, ancho=2, **kwargs):
     with col2:
         func(*args, **kwargs)
 
-def input_con_miles(label):
+def input_con_miles(label, key):
+
+    valor = st.text_input(label, key=key)
 
     html_code = f"""
-    <label style="font-family:sans-serif">{label}</label>
-    
-    <input id="numero" type="text"
-    style="
-    width:100%;
-    padding:10px 12px;
-    font-size:16px;
-    border:1px solid #d1d5db;
-    border-radius:6px;
-    box-sizing:border-box;
-    outline:none;
-    ">
-    
-    <style>
-    #numero:focus {{
-        border-color:#ff4b4b;
-        box-shadow:0 0 0 1px #ff4b4b;
-    }}
-    </style>
-    
     <script>
-    const input = document.getElementById("numero");
-    
-    input.addEventListener("input", function(e) {{
-        let valor = input.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
-    
-        if(valor === "") {{
-            input.value = "";
-            return;
-        }}
-    
-        input.value = Number(valor).toLocaleString("es-AR");
+    const input = window.parent.document.querySelectorAll('input[type="text"]');
+
+    input.forEach((el) => {{
+        el.addEventListener("input", function(e) {{
+            let valor = el.value.replace(/\\./g,"").replace(/[^0-9]/g,"");
+
+            if(valor === "") {{
+                el.value = "";
+                return;
+            }}
+
+            el.value = Number(valor).toLocaleString("es-AR");
+        }});
     }});
     </script>
     """
 
-    components.html(html_code, height=80)
+    components.html(html_code, height=0)
+
+    if valor == "":
+        return None
+
+    return int(valor.replace(".", "").replace(",", ""))
 
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
@@ -98,7 +87,7 @@ if not st.session_state.acepto_terminos:
 # --- LÓGICA DE CÁLCULO ---
 
 def calcular_impuesto_sellos(localidad, valor_prop, tiene_otra_prop):
-    if localidad is "Provincia":
+    if localidad == "Provincia":
         porc = 1.0
         return (porc * valor_prop) / 100
     else:  # CABA
@@ -180,14 +169,14 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = input_con_miles("Ingrese el valor de la propiedad (USD)")
-    valor_pesos = input_con_miles("Ingrese el valor de la propiedad (ARS)")
+    valor_usd = input_con_miles("Ingrese el valor de la propiedad (USD)","usd")
+    valor_pesos = input_con_miles("Ingrese el valor de la propiedad (ARS)","ars")
 
 with col2:
     rol = st.segmented_control("Tu rol:", ["Comprador", "Vendedor"])
     hon_inmo = 0.0
     hon_escr = 0.0
-    if rol is "Comprador":
+    if rol == "Comprador":
         hon_inmo = honorarios(0, 9, 0.5, "% Honorarios Inmobiliaria:", 8)  # Rango 0-4% en pasos de 0.5
         hon_escr = honorarios(0, 5, 0.5, "% Honorarios Escribanía:", 4)  # Rango 0-2% en pasos de 0.5
     else:
@@ -195,25 +184,25 @@ with col2:
 
 # Lógica condicional para vivienda única
 tiene_otra = "Sí"
-if localidad is "CABA":
-    if rol is "Comprador":
+if localidad == "CABA":
+    if rol == "Comprador":
         pregunta = "¿Posee otra propiedad en CABA?"
     else:
         pregunta = "¿El comprador posee otra propiedad en CABA?"
     tiene_otra = st.radio(pregunta, ["Sí", "No"], help="Seleccione 'No' si es vivienda única para aplicar exenciones.")
         
 tiene_sup_desc = "No"
-if localidad is "Provincia" and rol is "Vendedor":
+if localidad == "Provincia" and rol == "Vendedor":
     pregunta2 = "¿La propiedad tiene superficie descubierta?"
     tiene_sup_desc = st.radio(pregunta2, ["Sí", "No"], help="En caso de tener superficie descubierta, agrega el valor del agrimensor.")
     
 valuacion_fiscal = 0.0
-if tiene_sup_desc is "Sí":
-    valuacion_fiscal = input_con_miles("Ingrese la valuación fiscal (ARS)")
+if tiene_sup_desc == "Sí":
+    valuacion_fiscal = input_con_miles("Ingrese la valuación fiscal (ARS)","vf")
     
 # Condición: Vendedor + Provincia + Superficie descubierta
 costo_agrimensor = 0.0
-if rol is "Vendedor" and localidad is "Provincia" and tiene_sup_desc is "Sí" and valuacion_fiscal is not None:
+if rol == "Vendedor" and localidad == "Provincia" and tiene_sup_desc == "Sí" and valuacion_fiscal is not None:
     costo_agrimensor = calcular_agrimensor(valuacion_fiscal)
     st.warning(f"Se debe realizar estado parcelario. Costo Agrimensor Estimado: ${costo_agrimensor:,.0f}")
 
@@ -235,7 +224,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 aporte = (0.2 * valor_pesos) / 100
                 otros = (0.8 * valor_pesos) / 100
                 gastos_pesos = sellos + aporte + otros
-                if localidad is "Provincia" and rol is "Vendedor" and tiene_sup_desc is "Sí":
+                if localidad == "Provincia" and rol == "Vendedor" and tiene_sup_desc == "Sí":
                     gastos_pesos += costo_agrimensor
                 
                 honorarios_inmobiliaria = valor_usd * (hon_inmo / 100)
@@ -271,6 +260,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
