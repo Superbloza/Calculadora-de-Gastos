@@ -226,7 +226,7 @@ if rol == "Vendedor" and localidad == "Provincia" and tiene_sup_desc == "Sí" an
 if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
     # Botón de cálculo
         if st.button("Calcular Gastos Ahora"):
-            if valor_usd == None or valor_pesos == None or valuacion_fiscal == None:
+            if valor_usd == None or valor_pesos == None or (valuacion_fiscal == None if tiene_sup_desc == "Sí"):
                 st.info("Por favor, complete los campos para calcular los gastos estimados.")
                 st.stop()
             else:
@@ -271,6 +271,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
