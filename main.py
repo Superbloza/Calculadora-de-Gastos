@@ -197,10 +197,10 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = number_input_formateado("Precio publicado (USD)", value=None, step=10000)
+    valor_usd = number_input_formateado("Precio publicado (USD)", value=None, placeholder="Ej: 300000 o 300.000, allow_decimal = False, key="precio_usd")
     if valor_usd != None:
         st.caption(f"Valor ingresado: USD {valor_usd:,.0f}".replace(",", "."))
-    valor_pesos = number_input_formateado("Precio publicado (ARS)", value=None, step=100000)
+    valor_pesos = number_input_formateado("Precio publicado (ARS)", value=None, placeholder="Ej: 145000000 o 145.000.000, allow_decimal = False, key="precio_ars")
     if valor_pesos != None:
         st.caption(f"Valor ingresado: ARS {valor_pesos:,.0f}".replace(",", "."))
 
@@ -230,7 +230,7 @@ if localidad == "Provincia" and rol == "Vendedor":
     
 valuacion_fiscal = 0.0
 if tiene_sup_desc == "Sí":
-    valuacion_fiscal = valor_pesos = number_input_formateado("Valuación Fiscal (ARS)", value=None, step=100000)
+    valuacion_fiscal = valor_pesos = number_input_formateado("Valuación Fiscal (ARS)", value=None, placeholder = "Ingrese la valuación fiscal", allow_decimal=False, key="valuacion_fiscal")
     if valuacion_fiscal != None:
         st.caption(f"Valor ingresado: ARS {valuacion_fiscal:,.0f}".replace(",", "."))
     
@@ -288,6 +288,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
