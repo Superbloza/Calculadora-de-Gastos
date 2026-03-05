@@ -210,23 +210,24 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 else:
                     c1, c2, c3 = st.columns(3)
                     
-                c1.metric("Imp. Sellos", f"${sellos:,.0f}")
-                c2.metric("Aporte Notarial", f"${aporte:,.0f}")
-                c3.metric("Otros Gastos", f"${otros:,.0f}")
+                c1.metric("Imp. Sellos", f"${sellos}")
+                c2.metric("Aporte Notarial", f"${aporte}")
+                c3.metric("Otros Gastos", f"${otros}")
                 
-                st.success(f"### Gastos en Pesos: ${gastos_pesos:,.2f} ARS")
+                st.success(f"### Gastos en Pesos: ${gastos_pesos} ARS")
                 c1, c2 = st.columns(2)
                 with c1:
-                    c1.metric("Honorarios Inmobiliaria", f"${honorarios_inmobiliaria:,.2f} USD")
+                    c1.metric("Honorarios Inmobiliaria", f"${honorarios_inmobiliaria} USD")
                     gastos_pesos_convertidos_blue = gastos_pesos / dolar_blue
                     c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:,.2f} USD")
                 with c2:
                     if rol is "Comprador":
-                        c2.metric("Honorarios Escribanía", f"${honorarios_escribania:,.2f} USD")
+                        c2.metric("Honorarios Escribanía", f"${honorarios_escribania} USD")
                 gastos_totales_a_abonar_en_dolares = honorarios_inmobiliaria + honorarios_escribania + gastos_pesos_convertidos_blue
-                st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
+                st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
