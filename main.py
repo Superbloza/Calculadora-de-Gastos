@@ -14,33 +14,6 @@ def centrar(func, *args, ancho=2, **kwargs):
     with col2:
         func(*args, **kwargs)
 
-def input_con_miles(label, key):
-
-    if key not in st.session_state:
-        st.session_state[key] = ""
-
-    valor = st.text_input(label, key=key)
-
-    if valor == "":
-        return None
-
-    limpio = re.sub(r"[^0-9]", "", valor)
-
-    if limpio == "":
-        return None
-
-    numero = int(limpio)
-
-    # Formatear con miles
-    formateado = f"{numero:,}".replace(",", ".")
-
-    # Actualizar el input
-    if valor != formateado:
-        st.session_state[key] = formateado
-        st.rerun()
-
-    return numero
-
 # --- CONTROL DE TÉRMINOS ---
 if "acepto_terminos" not in st.session_state:
     st.session_state.acepto_terminos = False
@@ -167,8 +140,8 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = input_con_miles("Ingrese el valor de la propiedad (USD)","usd")
-    valor_pesos = input_con_miles("Ingrese el valor de la propiedad (ARS)","ars")
+    valor_usd = st.number_input("Ingrese el valor de la propiedad(USD)", min_value = 0.0)
+    valor_pesos = st.number_input("Ingrese el valor de la propiedad(ARS)", min_value = 0.0)
 
 with col2:
     rol = st.segmented_control("Tu rol:", ["Comprador", "Vendedor"])
@@ -196,7 +169,7 @@ if localidad == "Provincia" and rol == "Vendedor":
     
 valuacion_fiscal = 0.0
 if tiene_sup_desc == "Sí":
-    valuacion_fiscal = input_con_miles("Ingrese la valuación fiscal (ARS)","vf")
+    valuacion_fiscal = st.number_input("Ingrese la valuación fiscal", min_value = 0.0)
     
 # Condición: Vendedor + Provincia + Superficie descubierta
 costo_agrimensor = 0.0
@@ -258,6 +231,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
