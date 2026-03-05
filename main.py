@@ -212,14 +212,14 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                     
                 c1.metric("Imp. Sellos", f"${sellos:.0f}")
                 c2.metric("Aporte Notarial", f"${aporte:.0f}")
-                c3.metric("Otros Gastos", f"${otros:0f}")
+                c3.metric("Otros Gastos", f"${otros:.0f}")
                 
                 st.success(f"### Gastos en Pesos: ${gastos_pesos:.0f} ARS")
                 c1, c2 = st.columns(2)
                 with c1:
                     c1.metric("Honorarios Inmobiliaria", f"${honorarios_inmobiliaria:.0f} USD")
                     gastos_pesos_convertidos_blue = gastos_pesos / dolar_blue
-                    c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:,.2f} USD")
+                    c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:.0f} USD")
                 with c2:
                     if rol is "Comprador":
                         c2.metric("Honorarios Escribanía", f"${honorarios_escribania:.0f} USD")
@@ -227,6 +227,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:.0f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
