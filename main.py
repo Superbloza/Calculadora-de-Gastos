@@ -181,10 +181,6 @@ requiere_valuacion = (localidad == "Provincia" and rol == "Vendedor" and tiene_s
 
 if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
     # Botón de cálculo
-        st.write("USD:", valor_usd)
-        st.write("ARS:", valor_pesos)
-        st.write("Valuación:", valuacion_fiscal)
-        st.write("Requiere valuación:", requiere_valuacion)
         if st.button("Calcular Gastos Ahora"):
             if valor_usd is None or valor_pesos is None or (requiere_valuacion and valuacion_fiscal is None):
                 st.info("Por favor, complete los campos para calcular los gastos estimados.")
@@ -231,6 +227,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
