@@ -140,7 +140,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = st.number_input("Ingrese el valor de la propiedad(USD)", min_value = 0.0, label_visibility = "invisible")
+    valor_usd = st.number_input("Ingrese el valor de la propiedad(USD)", min_value = 0.0, label_visibility = "visible")
     valor_pesos = st.number_input("Ingrese el valor de la propiedad(ARS)", min_value = 0.0)
 
 with col2:
@@ -231,6 +231,7 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
 
 
 
