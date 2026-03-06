@@ -2,6 +2,7 @@ import streamlit as st
 import math
 from pathlib import Path
 import streamlit.components.v1 as components
+import re
 
 BASE_DIR = Path(__file__).resolve().parent
 logo_path = BASE_DIR / "martin_prop.jpg"
@@ -31,7 +32,22 @@ if not st.session_state.acepto_terminos:
     - Los montos definitivos dependerán de la escribanía interviniente.
     - La inmobiliaria no se responsabiliza por diferencias con el valor final de la escrituración.
     """)
-
+    st.markdown("""
+    <style>
+    
+    /* Aumenta tamaño */
+    input[type="checkbox"] {
+        transform: scale(1.3);
+        accent-color: #B03A2E;   /* color del check */
+    }
+    
+    /* Mejora el label */
+    div[data-testid="stCheckbox"] label {
+        font-weight: 600;
+    }
+    
+    </style>
+    """, unsafe_allow_html=True)
     if st.checkbox("Al ingresar, declaro que he leído y acepto los términos y condiciones"):
         if st.button("Ingresar a la calculadora"):
             st.session_state.acepto_terminos = True
@@ -47,7 +63,7 @@ def calcular_impuesto_sellos(localidad, valor_prop, tiene_otra_prop):
         return (porc * valor_prop) / 100
     else:  # CABA
         porc = 1.75
-        if tiene_otra_prop == "No":  # Es vivienda única
+        if tiene_otra_prop is "No":  # Es vivienda única
             tope_exento = 205332000 
             if valor_prop > tope_exento:
                 return (porc * (valor_prop - tope_exento)) / 100
@@ -58,7 +74,7 @@ def calcular_impuesto_sellos(localidad, valor_prop, tiene_otra_prop):
 def calcular_agrimensor(valuacion_fiscal):
     valor_base_agrimensor = 440000
 # Base: Hasta 2.000.000 vale $440.000
-    if valuacion_fiscal != None:
+    if valuacion_fiscal is not None:
         if valuacion_fiscal <= 2000000:
             return valor_base_agrimensor
         else:
@@ -124,12 +140,8 @@ col1, col2 = st.columns(2)
 
 with col1:
     localidad = st.segmented_control("Ubicación:", ["CABA", "Provincia"])
-    valor_usd = st.number_input("Valor Propiedad (USD):", min_value=0.0, value=None, step=5000.0, placeholder="Ingrese el valor en dólares.", help="Ingrese únicamente números o una coma para decimales.")
-    if valor_usd != None:
-        st.caption(f"Valor ingresado: USD {valor_usd:,.0f}".replace(",", "."))
-    valor_pesos = st.number_input("Valor Propiedad (ARS):", min_value=0.0, value=None, step=500000.0, placeholder="Ingrese el valor en pesos.",help="Ingrese únicamente números o una coma para decimales.")
-    if valor_pesos != None:
-        st.caption(f"Valor ingresado: ARS {valor_pesos:,.0f}".replace(",", "."))
+    valor_usd = st.number_input("Ingrese el valor de la propiedad(USD)", min_value = 0.0, value = None, placeholder = "Ej: 1000000")
+    valor_pesos = st.number_input("Ingrese el valor de la propiedad(ARS)", min_value = 0.0, value = None, placeholder = "EJ: 1000000")
 
 with col2:
     rol = st.segmented_control("Tu rol:", ["Comprador", "Vendedor"])
@@ -157,20 +169,20 @@ if localidad == "Provincia" and rol == "Vendedor":
     
 valuacion_fiscal = 0.0
 if tiene_sup_desc == "Sí":
-    valuacion_fiscal = st.number_input("Valuación Fiscal: ", min_value=0.0, value=None, step=100000.0, placeholder="Ingrese la valuación fiscal.", help="Ingrese únicamente números o una coma para decimales.")
-    if valuacion_fiscal != None:
-        st.caption(f"Valor ingresado: ARS {valuacion_fiscal:,.0f}".replace(",", "."))
+    valuacion_fiscal = st.number_input("Ingrese la valuación fiscal", min_value = 0.0, value = None, placeholder = "Ej: 1000000")
     
 # Condición: Vendedor + Provincia + Superficie descubierta
 costo_agrimensor = 0.0
-if rol == "Vendedor" and localidad == "Provincia" and tiene_sup_desc == "Sí" and valuacion_fiscal != None:
+if rol == "Vendedor" and localidad == "Provincia" and tiene_sup_desc == "Sí" and valuacion_fiscal is not None:
     costo_agrimensor = calcular_agrimensor(valuacion_fiscal)
     st.warning(f"Se debe realizar estado parcelario. Costo Agrimensor Estimado: ${costo_agrimensor:,.0f}")
+
+requiere_valuacion = (localidad == "Provincia" and rol == "Vendedor" and tiene_sup_desc == "Sí")
 
 if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
     # Botón de cálculo
         if st.button("Calcular Gastos Ahora"):
-            if valor_usd == None or valor_pesos == None or valuacion_fiscal == None:
+            if valor_usd is None or valor_pesos is None or (requiere_valuacion and valuacion_fiscal is None):
                 st.info("Por favor, complete los campos para calcular los gastos estimados.")
                 st.stop()
             else:
@@ -198,23 +210,51 @@ if rol in ["Comprador", "Vendedor"] and localidad in ["CABA", "Provincia"]:
                 else:
                     c1, c2, c3 = st.columns(3)
                     
-                c1.metric("Imp. Sellos", f"${sellos:,.0f}")
-                c2.metric("Aporte Notarial", f"${aporte:,.0f}")
-                c3.metric("Otros Gastos", f"${otros:,.0f}")
+                c1.metric("Imp. Sellos", f"${sellos:.0f}")
+                c2.metric("Aporte Notarial", f"${aporte:.0f}")
+                c3.metric("Otros Gastos", f"${otros:.0f}")
                 
-                st.success(f"### Gastos en Pesos: ${gastos_pesos:,.2f} ARS")
+                st.success(f"### Gastos en Pesos: ${gastos_pesos:.0f} ARS")
                 c1, c2 = st.columns(2)
                 with c1:
-                    c1.metric("Honorarios Inmobiliaria", f"${honorarios_inmobiliaria:,.2f} USD")
+                    c1.metric("Honorarios Inmobiliaria", f"${honorarios_inmobiliaria:.0f} USD")
                     gastos_pesos_convertidos_blue = gastos_pesos / dolar_blue
-                    c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:,.2f} USD")
+                    c1.metric("Gastos en Pesos Convertidos a USD (Dólar Blue):", f"${gastos_pesos_convertidos_blue:.0f} USD")
                 with c2:
-                    if rol == "Comprador":
-                        c2.metric("Honorarios Escribanía", f"${honorarios_escribania:,.2f} USD")
+                    if rol is "Comprador":
+                        c2.metric("Honorarios Escribanía", f"${honorarios_escribania:.0f} USD")
                 gastos_totales_a_abonar_en_dolares = honorarios_inmobiliaria + honorarios_escribania + gastos_pesos_convertidos_blue
-                st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:,.2f} USD")
+                st.success(f"### Total a Abonar en USD (Dólar Blue): ${gastos_totales_a_abonar_en_dolares:.0f} USD")
 
                 st.caption("Nota: Los valores son orientativos basados en la normativa vigente y al solo efecto de orientar con los gastos al cliente. Los valores definitivos dependerán de la proforma de la escribanía interviniente.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
